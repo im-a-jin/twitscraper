@@ -1,15 +1,15 @@
 import pickle
 import time
-from collections import deque
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 
-from .utils import FIFOCache, DEFAULT_COOKIE_PATH, get_links_js
+from .utils import FIFOCache, get_links_js
 
 class Tweeter:
-    def __init__(self, user, cookie_path=DEFAULT_COOKIE_PATH, cache_size=4):
+    def __init__(self, user, cookie_path, cache_size=4):
         self.user = user
         with open(cookie_path, "rb") as f:
             self.cookies = pickle.load(f)
@@ -52,6 +52,7 @@ class Tweeter:
             time.sleep(1)
         for t in self.cache:
             tweets.pop(t, None)
-        self.cache.update(reversed(tweets.items()))
+        tweets = reversed(tweets.items())
+        self.cache.update(tweets)
         driver.quit()
         return tweets

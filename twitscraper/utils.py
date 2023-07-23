@@ -2,8 +2,6 @@ import os
 import logging
 from collections import OrderedDict
 
-DEFAULT_COOKIE_PATH = os.path.join(os.path.dirname(__file__), "cookies.pkl")
-
 def get_links_js(user):
     return f'''
         tweets = document.querySelectorAll('[data-testid="tweet"]')
