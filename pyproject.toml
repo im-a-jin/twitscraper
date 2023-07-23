@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[tool.setuptools]
+packages = ["twitscraper"]
+
+[project]
+name = "twitscraper"
+version = "0.0.1"
+dependencies = [
+  "selenium",
+  "selenium-firefox",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
