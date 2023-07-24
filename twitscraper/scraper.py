@@ -9,24 +9,19 @@ from selenium.webdriver.support.wait import WebDriverWait
 from .utils import FIFOCache, get_links_js
 
 class Tweeter:
-    def __init__(self, user, cookie_path, cache_size=4):
+    def __init__(self, user, cookie_path):
         self.user = user
         with open(cookie_path, "rb") as f:
             self.cookies = pickle.load(f)
         self._get_links_js = get_links_js(user)
-        self.cache = FIFOCache(cache_size)
-        self.cache_size = cache_size
-        self._cache_tweets()
+        self.latest = "1970-01-01T00:00:00Z"
+        self._init_latest()
 
-    def _cache_tweets(self):
-        """Initializes cache with existing tweets"""
+    def _init_latest(self):
+        """Checks twitter feed and updates latest time"""
         driver = self._init_driver()
-        tweets = {}
-        while len(tweets) < self.cache_size:
-            links = driver.execute_script(self._get_links_js)
-            tweets.update(links)
-            time.sleep(1)
-        self.cache.update(reversed(tweets.items()))
+        links = driver.execute_script(self._get_links_js)
+        self.latest = max(links.values())
         driver.quit()
 
     def _init_driver(self):
@@ -46,13 +41,12 @@ class Tweeter:
         """Peek at feed for new tweets"""
         driver = self._init_driver()
         tweets = {}
-        while not any(t in self.cache for t in tweets):
+        while all(ti > self.latest for tw, ti in tweets.items()):
             links = driver.execute_script(self._get_links_js)
             tweets.update(links)
             time.sleep(1)
-        for t in self.cache:
-            tweets.pop(t, None)
-        tweets = reversed(tweets.items())
-        self.cache.update(tweets)
         driver.quit()
-        return tweets
+        tweets = {tw: ti for tw, ti in tweets.items() if ti > self.latest}
+        if len(tweets) > 0:
+            self.latest = max(tweets.values())
+        return reversed(tweets.items())
