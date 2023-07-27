@@ -1,5 +1,4 @@
 geckodriver.log
-*.pkl
 
 build
 *.egg-info
