@@ -4,9 +4,15 @@ requires = ["setuptools", "wheel"]
 [tool.setuptools]
 packages = ["twitscraper"]
 
+[tool.setuptools.package-data]
+twitscraper = ["*.pkl"]
+
+[tool.setuptools.dynamic]
+version = { attr = "twitscraper.__version__" }
+
 [project]
 name = "twitscraper"
-version = "0.0.5"
+dynamic = ["version"]
 dependencies = [
   "selenium",
   "selenium-firefox",
