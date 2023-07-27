@@ -10,12 +10,12 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 
-from .utils import get_links_js
+from .utils import get_links_js, AUTH_COOKIE_PATH
 
 class Tweeter:
     logger = logging.getLogger('Tweeter')
 
-    def __init__(self, cookie_path):
+    def __init__(self, cookie_path=AUTH_COOKIE_PATH):
         with open(cookie_path, "rb") as f:
             self.cookies = pickle.load(f)
         self.users = {}
