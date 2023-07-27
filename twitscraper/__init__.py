@@ -4,8 +4,6 @@ TwitScraper
 Scraping twatter
 """
 
-from importlib.metadata import version
-
-__version__ = version(__package__)
+__version__ = "0.0.5"
 
 from .scraper import Tweeter
