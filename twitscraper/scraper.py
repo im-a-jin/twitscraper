@@ -18,7 +18,6 @@ class Tweeter:
     def __init__(self, cookie_path):
         with open(cookie_path, "rb") as f:
             self.cookies = pickle.load(f)
-        # self._get_links_js = get_links_js(user)
         self.users = {}
         self.driver = None
 

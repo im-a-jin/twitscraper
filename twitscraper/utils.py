@@ -23,21 +23,3 @@ def get_links_js(user):
         }}
         return links
     '''
-
-class FIFOCache(OrderedDict):
-    logger = logging.getLogger('FIFOCache')
-
-    def __init__(self, cache_size=None):
-        self.cache_size = cache_size
-        self.logger.debug(f"Cache size set to {cache_size}")
-        OrderedDict.__init__(self)
-
-    def __setitem__(self, key, value):
-        OrderedDict.__setitem__(self, key, value)
-        self._check_cache_size()
-
-    def _check_cache_size(self):
-        if self.cache_size is not None:
-            self.logger.debug(f"Checking cache size. Current size is {len(self)}")
-            while len(self) > self.cache_size:
-                self.popitem(last=False)
