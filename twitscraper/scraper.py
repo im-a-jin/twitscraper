@@ -38,7 +38,7 @@ class Tweeter:
                 self.driver.add_cookie(c)
             self._get(user)
         except TimeoutException as e:
-            logger.error("Failed to log in to twitter. Stopping webdriver.")
+            self.logger.error("Failed to log in to twitter. Stopping webdriver.")
             self._stop()
             raise
 
@@ -53,14 +53,15 @@ class Tweeter:
             wait = WebDriverWait(self.driver, wait_timeout, poll_frequency).\
                     until(lambda x: x.find_element(By.CSS_SELECTOR, '[data-testid="tweet"]').is_displayed())
         except TimeoutException as e:
-            logger.error("Failed to access/find tweets at https://twitter.com/{user}")
+            self.logger.error(f"Failed to access/find tweets at https://twitter.com/{user}")
             raise
 
     def _stop(self):
         """
         Stops the webdriver.
         """
-        self.driver.quit()
+        if self.driver is not None:
+            self.driver.quit()
         self.driver = None
 
     def add_user(self, user, check=False):
@@ -99,7 +100,7 @@ class Tweeter:
         tweets = {}
         self._start()
         if user is None:
-            for u in self.users.keys():
+            for u in list(self.users):
                 tweets[u] = self._peek(u, limit)
         else:
             tweets[user] = self._peek(user, limit)
@@ -122,5 +123,5 @@ class Tweeter:
             i += 1
         tweets = {tw: ti for tw, ti in tweets.items() if ti > self.users[user]}
         if len(tweets) > 0:
-            self.users[user] = max(tweets.values())
+            self.users[user] = max(self.users[user], max(tweets.values()))
         return tweets
