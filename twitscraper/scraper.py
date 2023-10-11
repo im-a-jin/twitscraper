@@ -22,7 +22,7 @@ class Tweeter:
         self.driver = None
 
     def _start(self, user='elonmusk'):
-        # NOTE: using the muskrat's homepage as test page
+        # NOTE: using Elon Musk's homepage as test page
         """
         Start headless Firefox instance.
 

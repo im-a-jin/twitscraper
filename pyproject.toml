@@ -14,7 +14,7 @@ version = { attr = "twitscraper.__version__" }
 name = "twitscraper"
 dynamic = ["version"]
 dependencies = [
-  "selenium",
+  "selenium<4.11",
   "selenium-firefox",
 ]
 
