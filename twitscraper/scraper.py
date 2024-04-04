@@ -26,7 +26,7 @@ class Tweeter:
         """
         Start headless Firefox instance.
 
-        Stops and raises TimeoutException if twitter fails to load.
+        Stops and returns -1 if twitter fails to load.
         """
         options = Options()
         options.add_argument('--headless')
@@ -36,17 +36,18 @@ class Tweeter:
             self.driver.get("https://twitter.com")
             for c in self.cookies:
                 self.driver.add_cookie(c)
-            self._get(user)
+            if self._get(user) == -1:
+                return -1
         except TimeoutException as e:
             self.logger.error("Failed to log in to twitter. Stopping webdriver.")
             self._stop()
-            raise
+            return -1
 
     def _get(self, user, wait_timeout=60, poll_frequency=1):
         """
         Gets a twitter user's feed and waits for it to load. 
         
-        Throws TimeoutException if feed fails to load within the timeout.
+        Returns -1 if feed fails to load within the timeout.
         """
         self.driver.get(f"https://twitter.com/{user}")
         try:
@@ -54,13 +55,14 @@ class Tweeter:
                     until(lambda x: x.find_element(By.CSS_SELECTOR, '[data-testid="tweet"]').is_displayed())
         except TimeoutException as e:
             self.logger.error(f"Failed to access/find tweets at https://twitter.com/{user}")
-            raise
+            return -1
 
     def _stop(self):
         """
         Stops the webdriver.
         """
         if self.driver is not None:
+            self.driver.close()
             self.driver.quit()
         self.driver = None
 
@@ -75,11 +77,9 @@ class Tweeter:
         user's tweets cannot be accessed.
         """
         if check:
-            try:
-                self._start(user)
-            except TimeoutException as e:
-                return None
-            self._stop()
+            if self._start(user) == -1:
+                self._stop()
+                return -1
         self.users[user] = datetime.utcnow().isoformat(sep='T', timespec='milliseconds')
         return self.users[user]
 
@@ -98,7 +98,8 @@ class Tweeter:
         limit dictates the maximum number of script executions
         """
         tweets = {}
-        self._start()
+        if self._start() == -1:
+            return tweets
         if user is None:
             for u in list(self.users):
                 tweets[u] = self._peek(u, limit)
@@ -113,8 +114,9 @@ class Tweeter:
         """
         Helper method for peek.
         """
-        self._get(user)
         i, tweets = 0, {}
+        if self._get(user) == -1:
+            return tweets
         script = get_links_js(user)
         while i < limit and sum(ti < self.users[user] for ti in tweets.values()) < 2:
             links = self.driver.execute_script(script)
